@@ -210,6 +210,7 @@ void motion(int x, int y)
 		
 		//update phi and theta based on change in x and y
         if (x > currX){
+<<<<<<< HEAD
             phi += 3.14159/100;
         }
         else{
@@ -221,6 +222,19 @@ void motion(int x, int y)
         }
         else{
             theta -= 3.14159/100;
+=======
+            phi += (x-currX)/100.0;
+        }
+        else if (x<currX) {
+            phi -= (currX-x)/100.0;
+        }
+		
+        if (y>currY){
+            theta += (y-currY)/100.0;
+        }
+        else if (y<currY) {
+            theta -= (currY-y)/100.0;
+>>>>>>> af320b973d94a96b70e2a61bcd2babebb7739d9b
         }
         
 		// limit theta to -4pi/9 and 4pi/9
