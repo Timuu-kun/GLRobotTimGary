@@ -58,7 +58,8 @@ void init()
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
     
-  gluPerspective(45.0, 1.0, 1.0, 1000.0);
+  gluPerspective(45.0, 1.0, 1.0, 100000.0);
+    
   glMatrixMode(GL_MODELVIEW);
 
   // shading model
@@ -88,6 +89,12 @@ void reshape(int newWidth, int newHeight)
 
 void display()
 {
+    // clear buffers
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    //reset matrix
+    glMatrixMode(GL_MODELVIEW_MATRIX);
+	glLoadIdentity();
+    
 	// we'll draw axis lines centered at (0,0,0)
 	double center[3]={0,0,0};
     double eyeX, eyeY, eyeZ;
@@ -129,9 +136,7 @@ void display()
     
 gluLookAt(eyeX,eyeY,eyeZ,0,0,0,0,1,0);
 
-	// clear buffers
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+    
 //  now draw axis in x,y,z directions from center
 	glColor3f(1.0f, 0.0f, 0.0f);
 	glBegin(GL_LINES);
@@ -150,11 +155,12 @@ gluLookAt(eyeX,eyeY,eyeZ,0,0,0,0,1,0);
 	glEnd();
     
     GLfloat white[] = {1,1,1,0};			// white
-	GLfloat purple[] = {1,0,1,0};			// purple
+	GLfloat purple[] = {1,0,1,0};
+    GLfloat red[] = {1,0,0,0};
     glMaterialfv(GL_FRONT, GL_DIFFUSE, purple);
     glMaterialfv(GL_FRONT, GL_SPECULAR, white);
     glMateriali(GL_FRONT,GL_SHININESS,50);
-	glColor4fv(purple);
+	glColor4fv(red);
 	glutSolidSphere(0.5, 100, 100);
     
     glTranslated(0, 0, 10);
@@ -164,10 +170,10 @@ gluLookAt(eyeX,eyeY,eyeZ,0,0,0,0,1,0);
 	glColor4fv(purple);
     glNormal3f(0, 1, 0);
 	glBegin(GL_TRIANGLE_STRIP);
-	glVertex3f(-20.0,-1.0,-80.0);
-	glVertex3f(-20.0,-1.0,0.0);
-	glVertex3f(20.0,-1.0,-80.0);
-	glVertex3f(20.0,-1.0,0.0);;
+	glVertex3f(-100.0,-1.0,-100.0);
+	glVertex3f(-100.0,-1.0,0.0);
+	glVertex3f(100.0,-1.0,-100.0);
+	glVertex3f(100.0,-1.0,0.0);;
 	glEnd();
 
 	
@@ -209,17 +215,17 @@ void motion(int x, int y)
 		
 		//update phi and theta based on change in x and y
         if (x > currX){
-            phi += 3.14159/100;
+            phi += 3.14159/1000;
         }
         else{
-            phi -= 3.14159/100;
+            phi -= 3.14159/1000;
         }
 		
         if (y>currY){
-            theta += 3.14159/100;
+            theta += 3.14159/1000;
         }
         else{
-            theta -= 3.14159/100;
+            theta -= 3.14159/1000;
         }
         
 		// limit theta to -4pi/9 and 4pi/9
