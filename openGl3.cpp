@@ -99,21 +99,14 @@ void display()
 	double center[3]={0,0,0};
     double eyeX, eyeY, eyeZ;
     
-    /*float m[16];
-    glGetFloatv(GL_MODELVIEW_MATRIX, m);
-    for (int i = 0; i < 4; i++) {
-        for (int j = 0; j < 4; j++) {
-            cout<<m[i*4+j];
-        }
-        cout<<endl;
-    }
-*/
+    
 	// compute eye position
 	// the eye is a distance d from the center at
 	// at an angle phi from z in plane y=1
 	// and then rotate the theta out of the y=1 plane
 	// e.g. when the center is (0,0,0) and phi=theta=0 we are at (0,0,d)
 	// looking at the origin
+   
     if (theta==0) {
          eyeY = 0;
     }
@@ -128,13 +121,17 @@ void display()
     }
     else{
     //double eyeX = dPrime*sin(3.14159/2-phi);
-     eyeX = dPrime/sin(phi);
+     eyeX = dPrime/cos(3.14159/2-phi);
     }
      eyeZ = dPrime/cos(phi);
+ 
 
-    cout<<eyeX<<" , "<<eyeY<<" , "<<eyeZ<<" , "<<dPrime<<endl;
     
-gluLookAt(eyeX,eyeY,eyeZ,0,0,0,0,1,0);
+    //for testing purposes
+    cout<<eyeX<<" , "<<eyeY<<" , "<<eyeZ<<" , "<<dPrime<< " , "<<theta<<" , "<<phi<<endl;
+    
+    //update camera
+    gluLookAt(eyeX,d,d,0,0,0,0,1,0);
 
     
 //  now draw axis in x,y,z directions from center
@@ -154,6 +151,7 @@ gluLookAt(eyeX,eyeY,eyeZ,0,0,0,0,1,0);
 		glVertex3f(center[0],center[1],center[2]+100);		
 	glEnd();
     
+    //draw some shapes for reference : plane and sphere.
     GLfloat white[] = {1,1,1,0};			// white
 	GLfloat purple[] = {1,0,1,0};
     GLfloat red[] = {1,0,0,0};
@@ -161,19 +159,16 @@ gluLookAt(eyeX,eyeY,eyeZ,0,0,0,0,1,0);
     glMaterialfv(GL_FRONT, GL_SPECULAR, white);
     glMateriali(GL_FRONT,GL_SHININESS,50);
 	glColor4fv(red);
-	glutSolidSphere(0.5, 100, 100);
-    
-    glTranslated(0, 0, 10);
-	glutSolidSphere(0.5, 100, 100);
+	glutSolidSphere(10, 100, 100);
     
         
 	glColor4fv(purple);
     glNormal3f(0, 1, 0);
 	glBegin(GL_TRIANGLE_STRIP);
 	glVertex3f(-100.0,-1.0,-100.0);
-	glVertex3f(-100.0,-1.0,0.0);
+	glVertex3f(-100.0,-1.0,100.0);
 	glVertex3f(100.0,-1.0,-100.0);
-	glVertex3f(100.0,-1.0,0.0);;
+	glVertex3f(100.0,-1.0,100.0);;
 	glEnd();
 
 	
@@ -215,17 +210,17 @@ void motion(int x, int y)
 		
 		//update phi and theta based on change in x and y
         if (x > currX){
-            phi += 3.14159/1000;
+            phi += 3.14159/100;
         }
         else{
-            phi -= 3.14159/1000;
+            phi -= 3.14159/100;
         }
 		
-        if (y>currY){
-            theta += 3.14159/1000;
+        if (y<currY){
+            theta += 3.14159/100;
         }
         else{
-            theta -= 3.14159/1000;
+            theta -= 3.14159/100;
         }
         
 		// limit theta to -4pi/9 and 4pi/9
