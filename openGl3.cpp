@@ -121,7 +121,7 @@ void display()
     }
     else{
     //double eyeX = dPrime*sin(3.14159/2-phi);
-     eyeX = dPrime/cos(3.14159/2-phi);
+     eyeX = dPrime/sin(phi);
     }
      eyeZ = dPrime/cos(phi);
  
@@ -131,7 +131,7 @@ void display()
     cout<<eyeX<<" , "<<eyeY<<" , "<<eyeZ<<" , "<<dPrime<< " , "<<theta<<" , "<<phi<<endl;
     
     //update camera
-    gluLookAt(eyeX,d,d,0,0,0,0,1,0);
+    gluLookAt(eyeX,eyeY,eyeZ,0,0,0,0,1,0);
 
     
 //  now draw axis in x,y,z directions from center
@@ -210,19 +210,6 @@ void motion(int x, int y)
 		
 		//update phi and theta based on change in x and y
         if (x > currX){
-<<<<<<< HEAD
-            phi += 3.14159/100;
-        }
-        else{
-            phi -= 3.14159/100;
-        }
-		
-        if (y<currY){
-            theta += 3.14159/100;
-        }
-        else{
-            theta -= 3.14159/100;
-=======
             phi += (x-currX)/100.0;
         }
         else if (x<currX) {
@@ -234,7 +221,6 @@ void motion(int x, int y)
         }
         else if (y<currY) {
             theta -= (currY-y)/100.0;
->>>>>>> af320b973d94a96b70e2a61bcd2babebb7739d9b
         }
         
 		// limit theta to -4pi/9 and 4pi/9
