@@ -97,7 +97,7 @@ void display()
     
 	// we'll draw axis lines centered at (0,0,0)
 	double center[3]={0,0,0};
-    double eyeX, eyeY, eyeZ;
+	double eyeX, eyeY, eyeZ;
     
     
 	// compute eye position
@@ -106,29 +106,10 @@ void display()
 	// and then rotate the theta out of the y=1 plane
 	// e.g. when the center is (0,0,0) and phi=theta=0 we are at (0,0,d)
 	// looking at the origin
-   
-    if (theta==0) {
-         eyeY = 0;
-    }
-    else{
-     eyeY = d/sin(theta);
-    }
-    
-    double dPrime = d/cos(theta);
-    
-    if (phi==0){
-         eyeX = 0;
-    }
-    else{
-    //double eyeX = dPrime*sin(3.14159/2-phi);
-     eyeX = dPrime/sin(phi);
-    }
-     eyeZ = dPrime/cos(phi);
- 
 
-    
-    //for testing purposes
-    cout<<eyeX<<" , "<<eyeY<<" , "<<eyeZ<<" , "<<dPrime<< " , "<<theta<<" , "<<phi<<endl;
+	eyeX = d * cos(theta) * cos(phi);
+	eyeY = d * sin(theta);
+	eyeZ = d * cos(theta) * sin(phi);
     
     //update camera
     gluLookAt(eyeX,eyeY,eyeZ,0,0,0,0,1,0);
@@ -151,19 +132,19 @@ void display()
 		glVertex3f(center[0],center[1],center[2]+100);		
 	glEnd();
     
-    //draw some shapes for reference : plane and sphere.
-    GLfloat white[] = {1,1,1,0};			// white
+	//draw some shapes for reference : plane and sphere.
+	GLfloat white[] = {1,1,1,0};			// white
 	GLfloat purple[] = {1,0,1,0};
-    GLfloat red[] = {1,0,0,0};
-    glMaterialfv(GL_FRONT, GL_DIFFUSE, purple);
-    glMaterialfv(GL_FRONT, GL_SPECULAR, white);
-    glMateriali(GL_FRONT,GL_SHININESS,50);
+	GLfloat red[] = {1,0,0,0};
+	glMaterialfv(GL_FRONT, GL_DIFFUSE, purple);
+	glMaterialfv(GL_FRONT, GL_SPECULAR, white);
+	glMateriali(GL_FRONT,GL_SHININESS,50);
 	glColor4fv(red);
 	glutSolidSphere(10, 100, 100);
     
         
 	glColor4fv(purple);
-    glNormal3f(0, 1, 0);
+	glNormal3f(0, 1, 0);
 	glBegin(GL_TRIANGLE_STRIP);
 	glVertex3f(-100.0,-1.0,-100.0);
 	glVertex3f(-100.0,-1.0,100.0);
@@ -207,22 +188,12 @@ void motion(int x, int y)
 	// wait until a mouse position is recorded and
 	// avoid really big jumps
 	if (currX>0  && abs(x-currX) < width/6 && abs(y-currY) < height/6) {
-		
 		//update phi and theta based on change in x and y
-        if (x > currX){
-            phi += (x-currX)/100.0;
-        }
-        else if (x<currX) {
-            phi -= (currX-x)/100.0;
-        }
-		
-        if (y>currY){
-            theta += (y-currY)/100.0;
-        }
-        else if (y<currY) {
-            theta -= (currY-y)/100.0;
-        }
-        
+
+	double dx = x-currX;
+	double dy = y-currY;
+	phi += dx/width * 3;
+	theta += dy/height * 3;        
 		// limit theta to -4pi/9 and 4pi/9
 		// it is disorienting to lose "up"
 		if (theta < -4*3.14159/9.0)
