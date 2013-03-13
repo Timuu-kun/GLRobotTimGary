@@ -20,7 +20,7 @@ $(EXEC) : $(OBJS)
 zip	: openGl3.zip
 
 openGl3.zip :
-	zip -r openGl3.zip ./
+	zip -r openGl3.zip ./ -x *.git*
 
 clean	:
 	rm -f *.o $(EXEC)
