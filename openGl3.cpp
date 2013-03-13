@@ -16,11 +16,26 @@ using namespace std;
 void display(void);
 void reshape(int width, int height);
 void keyboard(unsigned char key, int x, int y);
+void special_keyboard(int key, int mouseX, int mouseY);
 void motion(int x, int y);
 void init(void);
+void menu(int sel);
+
+enum MENU_ITEMS
+{
+	M_AMBIENT = 0,
+	M_POINT,
+	M_QUIT
+};
 
 // viewpoint
 double theta=0.5, phi=0, d=150;
+
+double centerX = 0;
+double centerY = 0;
+
+bool ambient = true;
+bool point = true;
 
 // window
 int width = 400;
@@ -31,76 +46,63 @@ int
 main(int argc, char **argv)
 {
 
-  // set up window
-  glutInitWindowSize(400, 400);
-  glutInit(&argc, argv);
-  glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
-  glutCreateWindow("Viewpoint Demo");
+	// set up window
+	glutInitWindowSize(400, 400);
+	glutInit(&argc, argv);
+	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
+	glutCreateWindow("Gary Lent and Tim Taylor: Project 3");
 
-  // register callback functions
-  glutDisplayFunc(display);
-  glutReshapeFunc(reshape); 
-  glutKeyboardFunc(keyboard);
-  glutMotionFunc(motion);
+	// register callback functions
+	glutDisplayFunc(display);
+	glutReshapeFunc(reshape); 
+	glutKeyboardFunc(keyboard);
+	glutSpecialFunc(special_keyboard);
+	glutMotionFunc(motion);
+	glutCreateMenu(menu);
+	glutAddMenuEntry("Toggle ambient lighting",M_AMBIENT);
+	glutAddMenuEntry("Toggle point light",M_POINT);
+	glutAddMenuEntry("Quit",M_QUIT);
 
-  // initalize opengl parameters
-  init();
+	glutAttachMenu(GLUT_RIGHT_BUTTON);
 
-  // loop until something happens
-  glutMainLoop();
-  return 0;           
+	// initalize opengl parameters
+	init();
+
+	// loop until something happens
+	glutMainLoop();
+	return 0;           
 }
 
 void init()
 {
-    glEnable(GL_LIGHT0);
-    glEnable(GL_LIGHTING);
-    glEnable(GL_COLOR_MATERIAL);
-  // initialize viewing system
-  glMatrixMode(GL_PROJECTION);
-  glLoadIdentity();
+	glEnable(GL_LIGHT0);
+	//glEnable(GL_LIGHT1);
+	glEnable(GL_LIGHTING);
+	glEnable(GL_COLOR_MATERIAL);
+	// initialize viewing system
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
     
-  gluPerspective(45.0, 1.0, 1.0, 100000.0);
+	gluPerspective(45.0, 1.0, 1.0, 100000.0);
     
-  glMatrixMode(GL_MODELVIEW);
+	glMatrixMode(GL_MODELVIEW);
 
-  // shading model
-  glEnable(GL_SMOOTH);
+	// shading model
+	glShadeModel(GL_SMOOTH);
  
-    
-  //lighting
-    GLfloat lightPosition[]={1,1,2,1};				// light position
-	glLightfv(GL_LIGHT0, GL_POSITION, lightPosition);		// setlight position
-    
-    GLfloat lightPosition2[]={2,2,2,1};				// light position
-	glLightfv(GL_LIGHT1, GL_POSITION, lightPosition2);		// setlight position
-
-    
-    GLfloat white[] = {1,1,1,0};					// light color
-	glLightfv(GL_LIGHT0, GL_DIFFUSE, white);			// set diffuse light color
-	glLightfv(GL_LIGHT0, GL_SPECULAR, white);			// set specular light color
-    
-    GLfloat red[] = {1,0,0,0};					// light color
-	glLightfv(GL_LIGHT1, GL_DIFFUSE, red);			// set diffuse light color
-	glLightfv(GL_LIGHT1, GL_SPECULAR, red);			// set specular light colo
-    
     
 	float constant=0.5;						// constant attenuation
 	float linear=0.001;						// linear attenuation
 	float quadratic=0.0;						// quadratic attenuation
 	glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, constant);
-    glLightf(GL_LIGHT1, GL_CONSTANT_ATTENUATION, constant);// set constant attenuation term
 	glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, linear);// set linear attenuation term
-    glLightf(GL_LIGHT1, GL_LINEAR_ATTENUATION, linear);
 	glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, quadratic);
-    glLightf(GL_LIGHT1, GL_QUADRATIC_ATTENUATION, quadratic);// set quadratic attenuation term
     
-  // initialize background color to black
-  glClearColor(0.0,0.0,0.0,0.0);
+	// initialize background color to black
+	glClearColor(0.0,0.0,0.0,0.0);
 
-  // enable depth buffering
-  glEnable(GL_DEPTH_TEST);
-
+	// enable depth buffering
+	glEnable(GL_DEPTH_TEST);
 }
 
 
@@ -118,16 +120,29 @@ void reshape(int newWidth, int newHeight)
 
 void display()
 {
-    // clear buffers
+	// clear buffers
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    //reset matrix
-    glMatrixMode(GL_MODELVIEW_MATRIX);
+	//reset matrix
+	glMatrixMode(GL_MODELVIEW_MATRIX);
 	glLoadIdentity();
     
-    //light
-    GLfloat lightPosition[]={1,1,-8,1};
-    glLightfv(GL_LIGHT0, GL_POSITION, lightPosition);
-    
+	//light
+	GLfloat lightPosition[]={2,2,-50,1};
+   	GLfloat white[] = {1,1,1,0};					// light color
+	GLfloat black[] = {0,0,0,0};
+	GLfloat gray[] = {0.2,0.2,0.2,0};
+	if (ambient) {
+		glLightfv(GL_LIGHT0, GL_AMBIENT, gray);
+	} else {
+		glLightfv(GL_LIGHT0, GL_AMBIENT, black);
+	}
+	if (point) {
+		glLightfv(GL_LIGHT0, GL_DIFFUSE, white);	// set diffuse light color
+		glLightfv(GL_LIGHT0, GL_SPECULAR, white);	// set specular light color
+	} else {
+		glLightfv(GL_LIGHT0, GL_DIFFUSE, black);
+		glLightfv(GL_LIGHT0, GL_SPECULAR, black);
+	}
 	// we'll draw axis lines centered at (0,0,0)
 	double center[3]={0,0,0};
 	double eyeX, eyeY, eyeZ;
@@ -145,7 +160,8 @@ void display()
 	eyeZ = d * cos(theta) * sin(phi);
     
     //update camera
-    gluLookAt(eyeX,eyeY,eyeZ,0,0,0,0,1,0);
+    gluLookAt(eyeX,eyeY,eyeZ,centerX,centerY,0,0,1,0);
+	glLightfv(GL_LIGHT0, GL_POSITION, lightPosition);
 
     
 //  now draw axis in x,y,z directions from center
@@ -166,10 +182,9 @@ void display()
 	glEnd();
     
 	//draw some shapes for reference : plane and sphere.
-	GLfloat white[] = {1,1,1,0};			// white
 	GLfloat purple[] = {1,0,1,0};
-    GLfloat black[] = {0,0,0,0};
 	GLfloat red[] = {1,0,0,0};
+	glNormal3f(0, 1, 0);
 	glMaterialfv(GL_FRONT, GL_DIFFUSE, purple);
 	glMaterialfv(GL_FRONT, GL_SPECULAR, white);
 	glMateriali(GL_FRONT,GL_SHININESS,50);
@@ -208,7 +223,6 @@ void display()
 	glEnd();
 
     glColor4fv(white);
-	glNormal3f(0, 1, 0);
 	glBegin(GL_TRIANGLE_STRIP);
 	glVertex3f(100.0,-1.0,0.0);
 	glVertex3f(100.0,-1.0,-100.0);
@@ -217,7 +231,6 @@ void display()
 	glEnd();
     
     glColor4fv(black);
-	glNormal3f(0, 1, 0);
 	glBegin(GL_TRIANGLE_STRIP);
     glVertex3f(100,-1,0);
 	glVertex3f(100,-1,100);
@@ -226,7 +239,6 @@ void display()
 	glEnd();
     
     glColor4fv(black);
-	glNormal3f(0, 1, 0);
 	glBegin(GL_TRIANGLE_STRIP);
     glVertex3f(-100,-1,0);
 	glVertex3f(-100,-1,-100);
@@ -247,12 +259,42 @@ void keyboard(unsigned char key, int mouseX, int mouseY)
 		case 'h':
 			cout << "You should add instructions on your UI." << endl;		
 			break;
-
+		case 'w':
+			centerY += 2;
+			if (centerY <= 0)
+				centerY = 0;
+			break;
+		case 's':
+			centerY -= 2;
+			if (centerY >= 1000)
+				centerY = 1000;
+			break;
+		case 'a':
+			centerX -= 2;
+			break;
+		case 'd':
+			centerX += 2;
+			break;
 	}
-	//glutPostRedisplay();
+	glutPostRedisplay();
 }
 
-
+void special_keyboard(int key, int mouseX, int mouseY)
+{
+	switch(key) {
+		case GLUT_KEY_UP:
+			d -= 5;
+			if (d <= 0)
+				d = 0;
+			break;
+		case GLUT_KEY_DOWN:
+			d += 5;
+			if (d >= 1000)
+				d = 1000;
+			break;
+	}
+	glutPostRedisplay();
+}
 
 
 /*
@@ -284,5 +326,24 @@ void motion(int x, int y)
 	}
 	currX = x;
 	currY = y;
+	glutPostRedisplay();
+}
+
+void menu(int sel)
+{
+	switch(sel)
+	{
+		case M_AMBIENT:
+			ambient = !ambient;
+			cerr << "Ambient lighting " << (ambient?"On":"Off") << endl;
+			break;
+		case M_POINT:
+			point = !point;
+			cerr << "Point light " << (point?"On":"Off") << endl;
+			break;
+		case M_QUIT:
+			exit(0);
+			break;
+	}
 	glutPostRedisplay();
 }
