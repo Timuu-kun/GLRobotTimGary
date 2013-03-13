@@ -53,7 +53,9 @@ main(int argc, char **argv)
 
 void init()
 {
-
+    glEnable(GL_LIGHT0);
+    glEnable(GL_LIGHTING);
+    glEnable(GL_COLOR_MATERIAL);
   // initialize viewing system
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
@@ -65,7 +67,34 @@ void init()
   // shading model
   glEnable(GL_SMOOTH);
  
+    
+  //lighting
+    GLfloat lightPosition[]={1,1,2,1};				// light position
+	glLightfv(GL_LIGHT0, GL_POSITION, lightPosition);		// setlight position
+    
+    GLfloat lightPosition2[]={2,2,2,1};				// light position
+	glLightfv(GL_LIGHT1, GL_POSITION, lightPosition2);		// setlight position
 
+    
+    GLfloat white[] = {1,1,1,0};					// light color
+	glLightfv(GL_LIGHT0, GL_DIFFUSE, white);			// set diffuse light color
+	glLightfv(GL_LIGHT0, GL_SPECULAR, white);			// set specular light color
+    
+    GLfloat red[] = {1,0,0,0};					// light color
+	glLightfv(GL_LIGHT1, GL_DIFFUSE, red);			// set diffuse light color
+	glLightfv(GL_LIGHT1, GL_SPECULAR, red);			// set specular light colo
+    
+    
+	float constant=0.5;						// constant attenuation
+	float linear=0.001;						// linear attenuation
+	float quadratic=0.0;						// quadratic attenuation
+	glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, constant);
+    glLightf(GL_LIGHT1, GL_CONSTANT_ATTENUATION, constant);// set constant attenuation term
+	glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, linear);// set linear attenuation term
+    glLightf(GL_LIGHT1, GL_LINEAR_ATTENUATION, linear);
+	glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, quadratic);
+    glLightf(GL_LIGHT1, GL_QUADRATIC_ATTENUATION, quadratic);// set quadratic attenuation term
+    
   // initialize background color to black
   glClearColor(0.0,0.0,0.0,0.0);
 
@@ -94,6 +123,10 @@ void display()
     //reset matrix
     glMatrixMode(GL_MODELVIEW_MATRIX);
 	glLoadIdentity();
+    
+    //light
+    GLfloat lightPosition[]={1,1,-8,1};
+    glLightfv(GL_LIGHT0, GL_POSITION, lightPosition);
     
 	// we'll draw axis lines centered at (0,0,0)
 	double center[3]={0,0,0};
@@ -135,6 +168,7 @@ void display()
 	//draw some shapes for reference : plane and sphere.
 	GLfloat white[] = {1,1,1,0};			// white
 	GLfloat purple[] = {1,0,1,0};
+    GLfloat black[] = {0,0,0,0};
 	GLfloat red[] = {1,0,0,0};
 	glMaterialfv(GL_FRONT, GL_DIFFUSE, purple);
 	glMaterialfv(GL_FRONT, GL_SPECULAR, white);
@@ -142,16 +176,63 @@ void display()
 	glColor4fv(red);
 	glutSolidSphere(10, 100, 100);
     
-        
-	glColor4fv(purple);
+    glColor4fv(purple);
+    glPushMatrix();
+    glTranslatef(0,25,0);
+	glutSolidSphere(20, 100, 100);
+    glPopMatrix();
+    
+    glColor4fv(white);
+    glBegin(GL_POLYGON);
+    glVertex2f(20, 20);
+    glVertex2f(20, 30);
+    glVertex2f(30, 40);
+    glVertex2f(30, 20);
+    glEnd();
+  
+    glBegin(GL_POLYGON);
+    glVertex2f(20, 20);
+    glVertex2f(20, 30);
+    glVertex2f(40, 30);
+    glVertex2f(30, 20);
+    glEnd();
+
+    
+	glColor4fv(white);
 	glNormal3f(0, 1, 0);
 	glBegin(GL_TRIANGLE_STRIP);
-	glVertex3f(-100.0,-1.0,-100.0);
+	glVertex3f(-100.0,-1.0,0.0);
 	glVertex3f(-100.0,-1.0,100.0);
-	glVertex3f(100.0,-1.0,-100.0);
-	glVertex3f(100.0,-1.0,100.0);;
+	glVertex3f(0.0,-1.0,0.0);
+	glVertex3f(0.0,-1.0,100.0);;
 	glEnd();
 
+    glColor4fv(white);
+	glNormal3f(0, 1, 0);
+	glBegin(GL_TRIANGLE_STRIP);
+	glVertex3f(100.0,-1.0,0.0);
+	glVertex3f(100.0,-1.0,-100.0);
+	glVertex3f(0.0,-1.0,0.0);
+	glVertex3f(0.0,-1.0,-100.0);;
+	glEnd();
+    
+    glColor4fv(black);
+	glNormal3f(0, 1, 0);
+	glBegin(GL_TRIANGLE_STRIP);
+    glVertex3f(100,-1,0);
+	glVertex3f(100,-1,100);
+    glVertex3f(0,-1,0);
+    glVertex3f(0,-1,100);
+	glEnd();
+    
+    glColor4fv(black);
+	glNormal3f(0, 1, 0);
+	glBegin(GL_TRIANGLE_STRIP);
+    glVertex3f(-100,-1,0);
+	glVertex3f(-100,-1,-100);
+    glVertex3f(0,-1,0);
+    glVertex3f(0,-1,-100);
+	glEnd();
 	
 	
 	// draw to screen
