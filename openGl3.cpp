@@ -64,8 +64,9 @@ double centerX = 0;
 double centerY = 0;
 double centerZ = 0;
 
-bool ambient = true;
-bool point = true;
+bool ambient = false;
+bool point = false;
+bool spot = true;
 
 // window
 int width = 400;
@@ -127,9 +128,9 @@ void init()
 	glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, constant);
 	glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, linear);// set linear attenuation term
 	glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, quadratic);
-	glLightf(GL_LIGHT1, GL_CONSTANT_ATTENUATION, constant);
-	glLightf(GL_LIGHT1, GL_LINEAR_ATTENUATION, linear);
-	glLightf(GL_LIGHT1, GL_QUADRATIC_ATTENUATION, quadratic);   
+	glLightf(GL_LIGHT1, GL_CONSTANT_ATTENUATION, 1.0);
+	glLightf(GL_LIGHT1, GL_LINEAR_ATTENUATION, 0.0);
+	glLightf(GL_LIGHT1, GL_QUADRATIC_ATTENUATION, 0.0);   
  
 	// initialize background color to black
 	glClearColor(0.0,0.0,0.0,0.0);
@@ -161,28 +162,35 @@ void display()
     
 	//light
 	GLfloat lightPosition[]={2,2,-50,1};
+	GLfloat facing[]={xUp+sin((rotationTheta+headRotationShake)*3.14159/180),
+        yUp+sin(headRotationNod*3.14159/180),
+        zUp+cos((rotationTheta+headRotationShake)*3.14159/180)};
+
    	GLfloat white[] = {1,1,1,0};					// light color
 	GLfloat black[] = {0,0,0,0};
 	GLfloat gray[] = {0.2,0.2,0.2,0};
-	GLfloat facing[]={xUp+sin((rotationTheta+headRotationShake)*3.14159/180),
-			yUp+sin(headRotationNod*3.14159/180),
-			zUp+cos((rotationTheta+headRotationShake)*3.14159/180)};
 	if (ambient) {
 		glLightfv(GL_LIGHT0, GL_AMBIENT, gray);
 	} else {
 		glLightfv(GL_LIGHT0, GL_AMBIENT, black);
 	}
 	if (point) {
-		glLightfv(GL_LIGHT1, GL_DIFFUSE, white);	// set diffuse light color
-		glLightfv(GL_LIGHT1, GL_SPECULAR, white);	// set specular light color
+		glLightfv(GL_LIGHT0, GL_DIFFUSE, white);	// set diffuse light color
+		glLightfv(GL_LIGHT0, GL_SPECULAR, white);	// set specular light color
 	} else {
-		glLightfv(GL_LIGHT1, GL_DIFFUSE, black);
-		glLightfv(GL_LIGHT1, GL_SPECULAR, black);
+		glLightfv(GL_LIGHT0, GL_DIFFUSE, black);
+		glLightfv(GL_LIGHT0, GL_SPECULAR, black);
 	}
 
-	glLightfv(GL_LIGHT1, GL_SPECULAR, white);
-	glLightf(GL_LIGHT1, GL_SPOT_CUTOFF, 45.0);
-	glLightf(GL_LIGHT1, GL_SPOT_EXPONENT, 10.0);
+	if (spot) {
+		glLightfv(GL_LIGHT1, GL_SPECULAR, white);
+		glLightfv(GL_LIGHT1, GL_DIFFUSE, white);
+	} else {
+		glLightfv(GL_LIGHT1, GL_SPECULAR, black);
+		glLightfv(GL_LIGHT1, GL_DIFFUSE, black);
+	}
+	glLightf(GL_LIGHT1, GL_SPOT_CUTOFF, 95.0);
+	glLightf(GL_LIGHT1, GL_SPOT_EXPONENT, 2.0);
 	//glLightfv(GL_LIGHT1, GL_SPOT_DIRECTION, facing);
  
 	// we'll draw axis lines centered at (0,0,0)
@@ -328,6 +336,7 @@ void keyboard(unsigned char key, int mouseX, int mouseY)
             <<"M: Lower robot's head"<<endl
             <<"Q and E: Shake robot's head side to side"<<endl
             <<"V: Toggle first-person view"<<endl
+	    <<"Z: Toggle spot light"<<endl
             <<"Arrow UP and DOWN: Zoom camera in and out"<<endl
             <<"Arrow LEFT and RIGHT: Pan camera along the Z axis"<<endl
             <<endl<<"Menu controls--Right click for the following options: "<<endl
@@ -363,6 +372,9 @@ void keyboard(unsigned char key, int mouseX, int mouseY)
 			break;
 		case 'v':
 			robotView = !robotView;
+			break;
+		case 'z':
+			spot = !spot;
 			break;
 	}
 	glutPostRedisplay();
@@ -461,11 +473,13 @@ void drawHeadAssembly(GLfloat xUp, GLfloat yUp, GLfloat zUp)
         zUp+cos((rotationTheta+headRotationShake)*3.14159/180)};
     
     //cout<<facing[0]<<" "<<facing[1]<<" "<<facing[2]<<endl;
-    
+   
+	glTranslatef(xUp, yUp, zUp); 
 	GLfloat headLamp[] = {xUp, yUp, zUp+0.4, 1};
 	glLightfv(GL_LIGHT1, GL_POSITION, headLamp);
     glLightfv(GL_LIGHT1, GL_SPOT_DIRECTION, facing);
-    
+	glTranslatef(-xUp, -yUp, -zUp);    
+
     glPopMatrix();
 }
 
