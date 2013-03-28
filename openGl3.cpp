@@ -27,6 +27,30 @@ enum MENU_ITEMS
 	M_QUIT
 };
 
+//body global variables
+GLfloat xUp=0;
+GLfloat yUp=0;
+GLfloat zUp=0;
+GLfloat rotationTheta=0;
+
+//body functions//////////////////////////////////////////////
+void drawHeadAssembly(GLfloat xUp, GLfloat yUp, GLfloat zUp, GLfloat rotationTheta);//
+void drawTorsoAssembly(GLfloat xUp, GLfloat yUp, GLfloat zUp, GLfloat rotationTheta);//
+void drawHead(GLfloat xUp, GLfloat yUp, GLfloat zUp, GLfloat rotationTheta);///////////
+void drawRightEye(GLfloat xUp, GLfloat yUp, GLfloat zUp, GLfloat rotationTheta);///////
+void drawLeftEye(GLfloat xUp, GLfloat yUp, GLfloat zUp, GLfloat rotationTheta);////////
+
+
+void drawTorsoAssembly(GLfloat xUp, GLfloat yUp, GLfloat zUp, GLfloat rotationTheta);//
+void drawTorso(GLfloat xUp, GLfloat yUp, GLfloat zUp, GLfloat rotationTheta);//////////
+void drawLeftArm(GLfloat xUp, GLfloat yUp, GLfloat zUp, GLfloat rotationTheta);////////
+void drawRightArm(GLfloat xUp, GLfloat yUp, GLfloat zUp, GLfloat rotationTheta);///////
+
+void drawButtAssembly(GLfloat xUp, GLfloat yUp, GLfloat zUp, GLfloat rotationTheta);////
+
+void drawBodyAssembly(GLfloat xUp, GLfloat yUp, GLfloat zUp, GLfloat rotationTheta);////
+/////////////////////////////////////////////////////////////////
+
 // viewpoint
 double theta=0.5, phi=0, d=150;
 
@@ -180,7 +204,7 @@ void display()
 		glVertex3f(center[0],center[1],center[2]+100);		
 	glEnd();
     
-	//draw some shapes for reference : plane and sphere.
+    //setting up some colors and diffuse/specular material lighting properties
 	GLfloat purple[] = {1,0,1,0};
 	GLfloat red[] = {1,0,0,0};
 	glNormal3f(0, 1, 0);
@@ -262,6 +286,11 @@ void display()
     }
     //end draw floor
     
+    xUp=0;
+    yUp=5;
+    zUp=0;
+    drawBodyAssembly(xUp,yUp,zUp,rotationTheta);
+    
     
 	glutSwapBuffers();
 }
@@ -290,6 +319,12 @@ void keyboard(unsigned char key, int mouseX, int mouseY)
 		case 'd':
 			centerX += 2;
 			break;
+        case 'j':
+            rotationTheta+=2;
+            break;
+        case 'k':
+            rotationTheta-=2;
+            break;
 	}
 	glutPostRedisplay();
 }
@@ -362,3 +397,111 @@ void menu(int sel)
 	}
 	glutPostRedisplay();
 }
+
+void drawHeadAssembly(GLfloat xUp, GLfloat yUp, GLfloat zUp, GLfloat rotationTheta)
+{
+    glPushMatrix();
+    
+    drawHead(xUp, yUp, zUp, rotationTheta);
+    drawLeftEye(xUp+0.2,yUp+0.15,zUp+0.4,rotationTheta);
+    drawRightEye(xUp-0.2,yUp+0.15,zUp+0.4,rotationTheta);
+    
+    glPopMatrix();
+}
+
+void drawTorsoAssembly(GLfloat xUp, GLfloat yUp, GLfloat zUp, GLfloat rotationTheta)
+{
+    glPushMatrix();
+    
+    drawTorso(xUp, yUp, zUp,rotationTheta);
+    drawLeftArm(xUp-0.6, yUp+0.1, zUp+0.15,rotationTheta);
+    drawRightArm(xUp+0.6,yUp+0.1, zUp+0.15,rotationTheta);
+    
+    glPopMatrix();
+}
+
+void drawHead(GLfloat xUp, GLfloat yUp, GLfloat zUp, GLfloat rotationTheta)
+{
+    glColor3f(1, 1, 1);
+    glPushMatrix();
+    glRotatef(rotationTheta,0,1,0);
+    glTranslatef(xUp, yUp, zUp);
+    glutSolidSphere(0.4, 100, 100);
+    glPopMatrix();
+}
+
+void drawLeftEye(GLfloat xUp, GLfloat yUp, GLfloat zUp, GLfloat rotationTheta)
+{
+    glColor3f(0, 0, 0);
+    glPushMatrix();
+    glRotatef(rotationTheta,0,1,0);
+    glTranslatef(xUp, yUp, zUp);
+    glutSolidSphere(0.05, 100, 100);
+    glPopMatrix();
+}
+
+void drawRightEye(GLfloat xUp, GLfloat yUp, GLfloat zUp, GLfloat rotationTheta)
+{
+    glColor3f(0, 0, 0);
+    glPushMatrix();
+    glRotatef(rotationTheta,0,1,0);
+    glTranslatef(xUp, yUp, zUp);
+    glutSolidSphere(0.05, 100, 100);
+    glPopMatrix();
+}
+
+void drawTorso(GLfloat xUp, GLfloat yUp, GLfloat zUp, GLfloat rotationTheta)
+{
+    glColor3f(1, 1, 1);
+    glPushMatrix();
+    glRotatef(rotationTheta,0,1,0);
+    glTranslatef(xUp, yUp, zUp);
+    glutSolidSphere(0.6, 100, 100);
+    glPopMatrix();
+}
+
+void drawLeftArm(GLfloat xUp, GLfloat yUp, GLfloat zUp, GLfloat rotationTheta)
+{
+    glColor3f(1, 0.5, 0);
+    glPushMatrix();
+    glRotatef(rotationTheta,0,1,0);
+    glTranslatef(xUp, yUp, zUp);
+    glRotatef(35,0,0,1);
+    glScaled(1,0.1,0.2);
+    glutSolidCube(1);
+    glPopMatrix();
+    
+}
+void drawRightArm(GLfloat xUp, GLfloat yUp, GLfloat zUp, GLfloat rotationTheta)
+{
+    glColor3f(1, 0.5, 0);
+    glPushMatrix();
+    glRotatef(rotationTheta,0,1,0);
+    glTranslatef(xUp, yUp, zUp);
+    glRotatef(-35,0,0,1);
+    glScaled(1,0.1,0.2);
+    glutSolidCube(1);
+    glPopMatrix();
+}
+
+void drawButtAssembly(GLfloat xUp, GLfloat yUp, GLfloat zUp, GLfloat rotationTheta)
+{
+    glColor3f(1, 1, 1);
+    glPushMatrix();
+    glRotatef(rotationTheta,0,1,0);
+    glTranslatef(xUp, yUp, zUp);
+    glutSolidSphere(0.8, 100, 100);
+    glPopMatrix();
+}
+
+void drawBodyAssembly(GLfloat xUp, GLfloat yUp, GLfloat zUp, GLfloat rotationTheta)
+{
+    glPushMatrix();
+    
+    drawHeadAssembly(xUp, yUp, zUp,rotationTheta);
+    drawTorsoAssembly(xUp, yUp-0.8, zUp,rotationTheta);
+    drawButtAssembly(xUp, yUp-2,zUp,rotationTheta);
+    
+    glPopMatrix();
+}
+
