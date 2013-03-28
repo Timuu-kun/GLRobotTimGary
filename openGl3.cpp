@@ -20,7 +20,6 @@ void special_keyboard(int key, int mouseX, int mouseY);
 void motion(int x, int y);
 void init(void);
 void menu(int sel);
-
 enum MENU_ITEMS
 {
 	M_AMBIENT = 0,
@@ -188,66 +187,82 @@ void display()
 	glMaterialfv(GL_FRONT, GL_DIFFUSE, purple);
 	glMaterialfv(GL_FRONT, GL_SPECULAR, white);
 	glMateriali(GL_FRONT,GL_SHININESS,50);
-	glColor4fv(red);
-	glutSolidSphere(10, 100, 100);
-    
-    glColor4fv(purple);
-    glPushMatrix();
-    glTranslatef(0,25,0);
-	glutSolidSphere(20, 100, 100);
-    glPopMatrix();
-    
-    glColor4fv(white);
-    glBegin(GL_POLYGON);
-    glVertex2f(20, 20);
-    glVertex2f(20, 30);
-    glVertex2f(30, 40);
-    glVertex2f(30, 20);
-    glEnd();
-  
-    glBegin(GL_POLYGON);
-    glVertex2f(20, 20);
-    glVertex2f(20, 30);
-    glVertex2f(40, 30);
-    glVertex2f(30, 20);
-    glEnd();
 
+    //draw floor
+    for (float i = -200; i<200; i=i+10)
+    {
+        for (float j = -200; j<200; j+=10)
+        {
+            glColor4fv(white);
+            glNormal3f(0, 1, 0);
+            glPushMatrix();
+            glTranslatef(i,0,j);
+            glBegin(GL_QUADS);
+            glVertex3f(0,-1.0,0);
+            glVertex3f(5,-1.0,0);
+            glVertex3f(5,-1.0,5.0);
+            glVertex3f(0,-1.0,5.0);;
+            glEnd();
+            glPopMatrix();
+        }
+    }
     
-	glColor4fv(white);
-	glNormal3f(0, 1, 0);
-	glBegin(GL_TRIANGLE_STRIP);
-	glVertex3f(-100.0,-1.0,0.0);
-	glVertex3f(-100.0,-1.0,100.0);
-	glVertex3f(0.0,-1.0,0.0);
-	glVertex3f(0.0,-1.0,100.0);;
-	glEnd();
-
-    glColor4fv(white);
-	glBegin(GL_TRIANGLE_STRIP);
-	glVertex3f(100.0,-1.0,0.0);
-	glVertex3f(100.0,-1.0,-100.0);
-	glVertex3f(0.0,-1.0,0.0);
-	glVertex3f(0.0,-1.0,-100.0);;
-	glEnd();
+    for (float i = -195; i<200; i=i+10)
+    {
+        for (float j = -195; j<200; j+=10)
+        {
+            glColor4fv(white);
+            glNormal3f(0, 1, 0);
+            glPushMatrix();
+            glTranslatef(i,0,j);
+            glBegin(GL_QUADS);
+            glVertex3f(0,-1.0,0);
+            glVertex3f(5,-1.0,0);
+            glVertex3f(5,-1.0,5.0);
+            glVertex3f(0,-1.0,5.0);;
+            glEnd();
+            glPopMatrix();
+        }
+    }
     
-    glColor4fv(black);
-	glBegin(GL_TRIANGLE_STRIP);
-    glVertex3f(100,-1,0);
-	glVertex3f(100,-1,100);
-    glVertex3f(0,-1,0);
-    glVertex3f(0,-1,100);
-	glEnd();
+    for (float i = -200; i<200; i=i+10)
+    {
+        for (float j = -205 ; j<200; j+=10)
+        {
+            glColor4fv(black);
+            glNormal3f(0, 1, 0);
+            glPushMatrix();
+            glTranslatef(i,0,j);
+            glBegin(GL_QUADS);
+            glVertex3f(0,-1.0,0);
+            glVertex3f(5,-1.0,0);
+            glVertex3f(5,-1.0,5.0);
+            glVertex3f(0,-1.0,5.0);;
+            glEnd();
+            glPopMatrix();
+        }
+    }
     
-    glColor4fv(black);
-	glBegin(GL_TRIANGLE_STRIP);
-    glVertex3f(-100,-1,0);
-	glVertex3f(-100,-1,-100);
-    glVertex3f(0,-1,0);
-    glVertex3f(0,-1,-100);
-	glEnd();
-	
-	
-	// draw to screen
+    for (float i = -195; i<200; i=i+10)
+    {
+        for (float j = -200; j<200; j+=10)
+        {
+            glColor4fv(black);
+            glNormal3f(0, 1, 0);
+            glPushMatrix();
+            glTranslatef(i,0,j);
+            glBegin(GL_QUADS);
+            glVertex3f(0,-1.0,0);
+            glVertex3f(5,-1.0,0);
+            glVertex3f(5,-1.0,5.0);
+            glVertex3f(0,-1.0,5.0);;
+            glEnd();
+            glPopMatrix();
+        }
+    }
+    //end draw floor
+    
+    
 	glutSwapBuffers();
 }
 
