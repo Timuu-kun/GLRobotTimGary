@@ -27,35 +27,41 @@ enum MENU_ITEMS
 	M_QUIT
 };
 
+//viewpoint boolean
+bool robotView = false;
+
 //body global variables
-GLfloat xUp=0;
-GLfloat yUp=0;
+GLfloat xUp=2;
+GLfloat yUp=2.75;
 GLfloat zUp=0;
 GLfloat rotationTheta=0;
+GLfloat headRotationNod=0;
+GLfloat headRotationShake=0;
 
 //body functions//////////////////////////////////////////////
-void drawHeadAssembly(GLfloat xUp, GLfloat yUp, GLfloat zUp, GLfloat rotationTheta);//
-void drawTorsoAssembly(GLfloat xUp, GLfloat yUp, GLfloat zUp, GLfloat rotationTheta);//
-void drawHead(GLfloat xUp, GLfloat yUp, GLfloat zUp, GLfloat rotationTheta);///////////
-void drawRightEye(GLfloat xUp, GLfloat yUp, GLfloat zUp, GLfloat rotationTheta);///////
-void drawLeftEye(GLfloat xUp, GLfloat yUp, GLfloat zUp, GLfloat rotationTheta);////////
+void drawHeadAssembly(GLfloat xUp, GLfloat yUp, GLfloat zUp);
+void drawTorsoAssembly(GLfloat xUp, GLfloat yUp, GLfloat zUp);
+void drawHead(GLfloat xUp, GLfloat yUp, GLfloat zUp);
+void drawRightEye(GLfloat xUp, GLfloat yUp, GLfloat zUp);
+void drawLeftEye(GLfloat xUp, GLfloat yUp, GLfloat zUp);
 
 
-void drawTorsoAssembly(GLfloat xUp, GLfloat yUp, GLfloat zUp, GLfloat rotationTheta);//
-void drawTorso(GLfloat xUp, GLfloat yUp, GLfloat zUp, GLfloat rotationTheta);//////////
-void drawLeftArm(GLfloat xUp, GLfloat yUp, GLfloat zUp, GLfloat rotationTheta);////////
-void drawRightArm(GLfloat xUp, GLfloat yUp, GLfloat zUp, GLfloat rotationTheta);///////
+void drawTorsoAssembly(GLfloat xUp, GLfloat yUp, GLfloat zUp);
+void drawTorso(GLfloat xUp, GLfloat yUp, GLfloat zUp);
+void drawLeftArm(GLfloat xUp, GLfloat yUp, GLfloat zUp);
+void drawRightArm(GLfloat xUp, GLfloat yUp, GLfloat zUp);
 
-void drawButtAssembly(GLfloat xUp, GLfloat yUp, GLfloat zUp, GLfloat rotationTheta);////
+void drawButtAssembly(GLfloat xUp, GLfloat yUp, GLfloat zUp);
 
-void drawBodyAssembly(GLfloat xUp, GLfloat yUp, GLfloat zUp, GLfloat rotationTheta);////
+void drawBodyAssembly(GLfloat xUp, GLfloat yUp, GLfloat zUp);
 /////////////////////////////////////////////////////////////////
 
 // viewpoint
-double theta=0.5, phi=0, d=150;
+double theta=0.5, phi=0, d=50;
 
 double centerX = 0;
 double centerY = 0;
+double centerZ = 0;
 
 bool ambient = true;
 bool point = true;
@@ -106,7 +112,7 @@ void init()
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
     
-	gluPerspective(45.0, 1.0, 1.0, 100000.0);
+	gluPerspective(45.0, 1.0, 1.0, 10000.0);
     
 	glMatrixMode(GL_MODELVIEW);
 
@@ -169,21 +175,25 @@ void display()
 	// we'll draw axis lines centered at (0,0,0)
 	double center[3]={0,0,0};
 	double eyeX, eyeY, eyeZ;
-    
-    
-	// compute eye position
-	// the eye is a distance d from the center at
-	// at an angle phi from z in plane y=1
-	// and then rotate the theta out of the y=1 plane
-	// e.g. when the center is (0,0,0) and phi=theta=0 we are at (0,0,d)
-	// looking at the origin
+   
+	if (!robotView) { 
 
-	eyeX = d * cos(theta) * cos(phi);
-	eyeY = d * sin(theta);
-	eyeZ = d * cos(theta) * sin(phi);
-    
-    //update camera
-    gluLookAt(eyeX,eyeY,eyeZ,centerX,centerY,0,0,1,0);
+		// compute eye position
+		// the eye is a distance d from the center at
+		// at an angle phi from z in plane y=1
+		// and then rotate the theta out of the y=1 plane
+		// e.g. when the center is (0,0,0) and phi=theta=0 we are at (0,0,d)
+		// looking at the origin
+
+		eyeX = d * cos(theta) * cos(phi);
+		eyeY = d * sin(theta);
+		eyeZ = d * cos(theta) * sin(phi);
+ 
+		//update camera
+		gluLookAt(eyeX,eyeY,eyeZ,centerX,centerY,centerZ,0,1,0);
+	} else {
+		gluLookAt(xUp, yUp, zUp, xUp+sin((rotationTheta+headRotationShake)*3.14159/180), yUp+sin(headRotationNod * 3.14158/180), zUp+cos((rotationTheta+headRotationShake) * 3.14159/180),0,1,0);
+	}
 	glLightfv(GL_LIGHT0, GL_POSITION, lightPosition);
 
     
@@ -222,10 +232,10 @@ void display()
             glPushMatrix();
             glTranslatef(i,0,j);
             glBegin(GL_QUADS);
-            glVertex3f(0,-1.0,0);
-            glVertex3f(5,-1.0,0);
-            glVertex3f(5,-1.0,5.0);
-            glVertex3f(0,-1.0,5.0);;
+            glVertex3f(0,0,0);
+            glVertex3f(5,0,0);
+            glVertex3f(5,0,5.0);
+            glVertex3f(0,0,5.0);;
             glEnd();
             glPopMatrix();
         }
@@ -240,10 +250,10 @@ void display()
             glPushMatrix();
             glTranslatef(i,0,j);
             glBegin(GL_QUADS);
-            glVertex3f(0,-1.0,0);
-            glVertex3f(5,-1.0,0);
-            glVertex3f(5,-1.0,5.0);
-            glVertex3f(0,-1.0,5.0);;
+            glVertex3f(0,0,0);
+            glVertex3f(5,0,0);
+            glVertex3f(5,0,5.0);
+            glVertex3f(0,0,5.0);;
             glEnd();
             glPopMatrix();
         }
@@ -258,10 +268,10 @@ void display()
             glPushMatrix();
             glTranslatef(i,0,j);
             glBegin(GL_QUADS);
-            glVertex3f(0,-1.0,0);
-            glVertex3f(5,-1.0,0);
-            glVertex3f(5,-1.0,5.0);
-            glVertex3f(0,-1.0,5.0);;
+            glVertex3f(0,0,0);
+            glVertex3f(5,0,0);
+            glVertex3f(5,0,5.0);
+            glVertex3f(0,0,5.0);;
             glEnd();
             glPopMatrix();
         }
@@ -276,20 +286,17 @@ void display()
             glPushMatrix();
             glTranslatef(i,0,j);
             glBegin(GL_QUADS);
-            glVertex3f(0,-1.0,0);
-            glVertex3f(5,-1.0,0);
-            glVertex3f(5,-1.0,5.0);
-            glVertex3f(0,-1.0,5.0);;
+            glVertex3f(0,0,0);
+            glVertex3f(5,0,0);
+            glVertex3f(5,0,5.0);
+            glVertex3f(0,0,5.0);;
             glEnd();
             glPopMatrix();
         }
     }
     //end draw floor
     
-    xUp=0;
-    yUp=5;
-    zUp=0;
-    drawBodyAssembly(xUp,yUp,zUp,rotationTheta);
+    drawBodyAssembly(xUp,yUp,zUp);
     
     
 	glutSwapBuffers();
@@ -304,27 +311,34 @@ void keyboard(unsigned char key, int mouseX, int mouseY)
 			cout << "You should add instructions on your UI." << endl;		
 			break;
 		case 'w':
-			centerY += 2;
-			if (centerY <= 0)
-				centerY = 0;
+			zUp += cos(rotationTheta * 3.14159/180);
+			xUp += sin(rotationTheta * 3.14159/180);
 			break;
 		case 's':
-			centerY -= 2;
-			if (centerY >= 1000)
-				centerY = 1000;
+			zUp -= cos(rotationTheta * 3.14159/180);
+			xUp -= sin(rotationTheta * 3.14159/180);
 			break;
 		case 'a':
-			centerX -= 2;
+			rotationTheta+=2;
 			break;
 		case 'd':
-			centerX += 2;
+			rotationTheta-=2;
 			break;
-        case 'j':
-            rotationTheta+=2;
-            break;
-        case 'k':
-            rotationTheta-=2;
-            break;
+		case 'n':
+			headRotationNod+=2;
+			break;
+		case 'm':
+			headRotationNod-=2;
+			break;
+		case 'q':
+			headRotationShake+=2;
+			break;
+		case 'e':
+			headRotationShake-=2;
+			break;
+		case 'v':
+			robotView = !robotView;
+			break;
 	}
 	glutPostRedisplay();
 }
@@ -341,6 +355,12 @@ void special_keyboard(int key, int mouseX, int mouseY)
 			d += 5;
 			if (d >= 1000)
 				d = 1000;
+			break;
+		case GLUT_KEY_LEFT:
+			centerX -= 2;
+			break;
+		case GLUT_KEY_RIGHT:
+			centerX += 2;
 			break;
 	}
 	glutPostRedisplay();
@@ -398,73 +418,72 @@ void menu(int sel)
 	glutPostRedisplay();
 }
 
-void drawHeadAssembly(GLfloat xUp, GLfloat yUp, GLfloat zUp, GLfloat rotationTheta)
+void drawHeadAssembly(GLfloat xUp, GLfloat yUp, GLfloat zUp)
 {
     glPushMatrix();
     
-    drawHead(xUp, yUp, zUp, rotationTheta);
-    drawLeftEye(xUp+0.2,yUp+0.15,zUp+0.4,rotationTheta);
-    drawRightEye(xUp-0.2,yUp+0.15,zUp+0.4,rotationTheta);
+	glTranslatef(xUp, yUp, zUp);
+	glRotatef(headRotationNod,1,0,0);
+	glRotatef(headRotationShake,0,1,0);
+	glTranslatef(-xUp, -yUp, -zUp); 
+    drawHead(xUp, yUp, zUp);
+    drawLeftEye(xUp+0.2,yUp+0.15,zUp+0.4);
+    drawRightEye(xUp-0.2,yUp+0.15,zUp+0.4);
     
     glPopMatrix();
 }
 
-void drawTorsoAssembly(GLfloat xUp, GLfloat yUp, GLfloat zUp, GLfloat rotationTheta)
+void drawTorsoAssembly(GLfloat xUp, GLfloat yUp, GLfloat zUp)
 {
     glPushMatrix();
     
-    drawTorso(xUp, yUp, zUp,rotationTheta);
-    drawLeftArm(xUp-0.6, yUp+0.1, zUp+0.15,rotationTheta);
-    drawRightArm(xUp+0.6,yUp+0.1, zUp+0.15,rotationTheta);
+    drawTorso(xUp, yUp, zUp);
+    drawLeftArm(xUp-0.6, yUp+0.1, zUp+0.15);
+    drawRightArm(xUp+0.6,yUp+0.1, zUp+0.15);
     
     glPopMatrix();
 }
 
-void drawHead(GLfloat xUp, GLfloat yUp, GLfloat zUp, GLfloat rotationTheta)
+void drawHead(GLfloat xUp, GLfloat yUp, GLfloat zUp)
 {
     glColor3f(1, 1, 1);
     glPushMatrix();
-    glRotatef(rotationTheta,0,1,0);
     glTranslatef(xUp, yUp, zUp);
     glutSolidSphere(0.4, 100, 100);
     glPopMatrix();
 }
 
-void drawLeftEye(GLfloat xUp, GLfloat yUp, GLfloat zUp, GLfloat rotationTheta)
+void drawLeftEye(GLfloat xUp, GLfloat yUp, GLfloat zUp)
 {
     glColor3f(0, 0, 0);
     glPushMatrix();
-    glRotatef(rotationTheta,0,1,0);
     glTranslatef(xUp, yUp, zUp);
     glutSolidSphere(0.05, 100, 100);
     glPopMatrix();
 }
 
-void drawRightEye(GLfloat xUp, GLfloat yUp, GLfloat zUp, GLfloat rotationTheta)
+void drawRightEye(GLfloat xUp, GLfloat yUp, GLfloat zUp)
 {
     glColor3f(0, 0, 0);
     glPushMatrix();
-    glRotatef(rotationTheta,0,1,0);
     glTranslatef(xUp, yUp, zUp);
     glutSolidSphere(0.05, 100, 100);
     glPopMatrix();
 }
 
-void drawTorso(GLfloat xUp, GLfloat yUp, GLfloat zUp, GLfloat rotationTheta)
+void drawTorso(GLfloat xUp, GLfloat yUp, GLfloat zUp)
 {
     glColor3f(1, 1, 1);
     glPushMatrix();
-    glRotatef(rotationTheta,0,1,0);
     glTranslatef(xUp, yUp, zUp);
     glutSolidSphere(0.6, 100, 100);
     glPopMatrix();
 }
 
-void drawLeftArm(GLfloat xUp, GLfloat yUp, GLfloat zUp, GLfloat rotationTheta)
+void drawLeftArm(GLfloat xUp, GLfloat yUp, GLfloat zUp)
 {
     glColor3f(1, 0.5, 0);
     glPushMatrix();
-    glRotatef(rotationTheta,0,1,0);
     glTranslatef(xUp, yUp, zUp);
     glRotatef(35,0,0,1);
     glScaled(1,0.1,0.2);
@@ -472,11 +491,10 @@ void drawLeftArm(GLfloat xUp, GLfloat yUp, GLfloat zUp, GLfloat rotationTheta)
     glPopMatrix();
     
 }
-void drawRightArm(GLfloat xUp, GLfloat yUp, GLfloat zUp, GLfloat rotationTheta)
+void drawRightArm(GLfloat xUp, GLfloat yUp, GLfloat zUp)
 {
     glColor3f(1, 0.5, 0);
     glPushMatrix();
-    glRotatef(rotationTheta,0,1,0);
     glTranslatef(xUp, yUp, zUp);
     glRotatef(-35,0,0,1);
     glScaled(1,0.1,0.2);
@@ -484,23 +502,25 @@ void drawRightArm(GLfloat xUp, GLfloat yUp, GLfloat zUp, GLfloat rotationTheta)
     glPopMatrix();
 }
 
-void drawButtAssembly(GLfloat xUp, GLfloat yUp, GLfloat zUp, GLfloat rotationTheta)
+void drawButtAssembly(GLfloat xUp, GLfloat yUp, GLfloat zUp)
 {
     glColor3f(1, 1, 1);
     glPushMatrix();
-    glRotatef(rotationTheta,0,1,0);
     glTranslatef(xUp, yUp, zUp);
     glutSolidSphere(0.8, 100, 100);
     glPopMatrix();
 }
 
-void drawBodyAssembly(GLfloat xUp, GLfloat yUp, GLfloat zUp, GLfloat rotationTheta)
+void drawBodyAssembly(GLfloat xUp, GLfloat yUp, GLfloat zUp)
 {
     glPushMatrix();
-    
-    drawHeadAssembly(xUp, yUp, zUp,rotationTheta);
-    drawTorsoAssembly(xUp, yUp-0.8, zUp,rotationTheta);
-    drawButtAssembly(xUp, yUp-2,zUp,rotationTheta);
+   
+	glTranslatef(xUp, yUp, zUp);
+	glRotatef(rotationTheta,0,1,0);
+	glTranslatef(-xUp, -yUp, -zUp); 
+    drawHeadAssembly(xUp, yUp, zUp);
+    drawTorsoAssembly(xUp, yUp-0.8,zUp);
+    drawButtAssembly(xUp, yUp-2,zUp);
     
     glPopMatrix();
 }
