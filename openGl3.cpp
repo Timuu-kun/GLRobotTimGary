@@ -173,17 +173,18 @@ void display()
 		glLightfv(GL_LIGHT0, GL_AMBIENT, black);
 	}
 	if (point) {
-		glLightfv(GL_LIGHT0, GL_DIFFUSE, white);	// set diffuse light color
-		glLightfv(GL_LIGHT0, GL_SPECULAR, white);	// set specular light color
+		glLightfv(GL_LIGHT1, GL_DIFFUSE, white);	// set diffuse light color
+		glLightfv(GL_LIGHT1, GL_SPECULAR, white);	// set specular light color
 	} else {
-		glLightfv(GL_LIGHT0, GL_DIFFUSE, black);
-		glLightfv(GL_LIGHT0, GL_SPECULAR, black);
+		glLightfv(GL_LIGHT1, GL_DIFFUSE, black);
+		glLightfv(GL_LIGHT1, GL_SPECULAR, black);
 	}
 
 	glLightfv(GL_LIGHT1, GL_SPECULAR, white);
-	glLightf(GL_LIGHT1, GL_SPOT_CUTOFF, 95.0);
-	glLightf(GL_LIGHT1, GL_SPOT_EXPONENT, 2.0);
-	glLightfv(GL_LIGHT1, GL_SPOT_DIRECTION, facing);
+	glLightf(GL_LIGHT1, GL_SPOT_CUTOFF, 45.0);
+	glLightf(GL_LIGHT1, GL_SPOT_EXPONENT, 10.0);
+	//glLightfv(GL_LIGHT1, GL_SPOT_DIRECTION, facing);
+ 
 	// we'll draw axis lines centered at (0,0,0)
 	double center[3]={0,0,0};
 	double eyeX, eyeY, eyeZ;
@@ -320,7 +321,19 @@ void keyboard(unsigned char key, int mouseX, int mouseY)
 	switch (key) {
 
 		case 'h':
-			cout << "You should add instructions on your UI." << endl;		
+			cout <<endl<<"Robot operation instructions:" << endl<<endl
+            <<"W and S: Move robot forward and back"<<endl
+            <<"A and D: Turn robot's entire body"<<endl
+            <<"N: Raise robot's head"<<endl
+            <<"M: Lower robot's head"<<endl
+            <<"Q and E: Shake robot's head side to side"<<endl
+            <<"V: Toggle first-person view"<<endl
+            <<"Arrow UP and DOWN: Zoom camera in and out"<<endl
+            <<"Arrow LEFT and RIGHT: Pan camera along the Z axis"<<endl
+            <<endl<<"Menu controls--Right click for the following options: "<<endl
+            <<"Toggle ambient lighting: Turn ambient lights on or off"<<endl
+            <<"Toggle point light: Turn the light on the robot's head on or off"<<endl
+            <<"Quit: Exit the program"<<endl;
 			break;
 		case 'w':
 			zUp += cos(rotationTheta * 3.14159/180);
@@ -443,8 +456,15 @@ void drawHeadAssembly(GLfloat xUp, GLfloat yUp, GLfloat zUp)
     drawRightEye(xUp-0.2,yUp+0.15,zUp+0.4);
 	drawMouth(xUp, yUp-0.15, zUp+0.4);
 
+    GLfloat facing[]={xUp+sin((rotationTheta+headRotationShake)*3.14159/180),
+        yUp+sin(headRotationNod*3.14159/180),
+        zUp+cos((rotationTheta+headRotationShake)*3.14159/180)};
+    
+    //cout<<facing[0]<<" "<<facing[1]<<" "<<facing[2]<<endl;
+    
 	GLfloat headLamp[] = {xUp, yUp, zUp+0.4, 1};
 	glLightfv(GL_LIGHT1, GL_POSITION, headLamp);
+    glLightfv(GL_LIGHT1, GL_SPOT_DIRECTION, facing);
     
     glPopMatrix();
 }
