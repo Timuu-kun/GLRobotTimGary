@@ -30,6 +30,11 @@ enum MENU_ITEMS
 
 //viewpoint boolean
 bool robotView = false;
+bool rollerCoasterView = false;
+
+GLfloat rcXPos=0.0;
+GLfloat rcYPos=0.0;
+GLfloat rcZPos=0.0;
 
 //body global variables
 GLfloat xUp=2;
@@ -56,6 +61,9 @@ void drawRightArm(GLfloat xUp, GLfloat yUp, GLfloat zUp);
 void drawButtAssembly(GLfloat xUp, GLfloat yUp, GLfloat zUp);
 
 void drawBodyAssembly(GLfloat xUp, GLfloat yUp, GLfloat zUp);
+void drawBodyReflection(GLfloat xUp, GLfloat yUp, GLfloat zUp);
+void drawFloor();
+void drawRollerCoaster(GLfloat controlPoints[]);
 /////////////////////////////////////////////////////////////////
 
 // viewpoint
@@ -82,7 +90,7 @@ main(int argc, char **argv)
 	// set up window
 	glutInitWindowSize(400, 400);
 	glutInit(&argc, argv);
-	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
+	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH | GLUT_STENCIL);
 	glutCreateWindow("Gary Lent and Tim Taylor: Project 3");
 
 	// register callback functions
@@ -141,6 +149,9 @@ void init()
 
 	// enable depth buffering
 	glEnable(GL_DEPTH_TEST);
+
+	glClearStencil(0.0);
+
 }
 
 
@@ -159,7 +170,7 @@ void reshape(int newWidth, int newHeight)
 void display()
 {
 	// clear buffers
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	//reset matrix
 	glMatrixMode(GL_MODELVIEW_MATRIX);
 	glLoadIdentity();
@@ -254,83 +265,39 @@ void display()
 	glMaterialfv(GL_FRONT, GL_SPECULAR, white);
 	glMateriali(GL_FRONT,GL_SHININESS,50);
 
-    //draw floor
-    for (float i = -200; i<200; i=i+10)
-    {
-        for (float j = -200; j<200; j+=10)
-        {
-            glColor4fv(white);
-            glNormal3f(0, 1, 0);
-            glPushMatrix();
-            glTranslatef(i,0,j);
-            glBegin(GL_QUADS);
-            glVertex3f(0,0,0);
-            glVertex3f(5,0,0);
-            glVertex3f(5,0,5.0);
-            glVertex3f(0,0,5.0);;
-            glEnd();
-            glPopMatrix();
-        }
-    }
-    
-    for (float i = -195; i<200; i=i+10)
-    {
-        for (float j = -195; j<200; j+=10)
-        {
-            glColor4fv(white);
-            glNormal3f(0, 1, 0);
-            glPushMatrix();
-            glTranslatef(i,0,j);
-            glBegin(GL_QUADS);
-            glVertex3f(0,0,0);
-            glVertex3f(5,0,0);
-            glVertex3f(5,0,5.0);
-            glVertex3f(0,0,5.0);;
-            glEnd();
-            glPopMatrix();
-        }
-    }
-    
-    for (float i = -200; i<200; i=i+10)
-    {
-        for (float j = -205 ; j<200; j+=10)
-        {
-            glColor4fv(black);
-            glNormal3f(0, 1, 0);
-            glPushMatrix();
-            glTranslatef(i,0,j);
-            glBegin(GL_QUADS);
-            glVertex3f(0,0,0);
-            glVertex3f(5,0,0);
-            glVertex3f(5,0,5.0);
-            glVertex3f(0,0,5.0);;
-            glEnd();
-            glPopMatrix();
-        }
-    }
-    
-    for (float i = -195; i<200; i=i+10)
-    {
-        for (float j = -200; j<200; j+=10)
-        {
-            glColor4fv(black);
-            glNormal3f(0, 1, 0);
-            glPushMatrix();
-            glTranslatef(i,0,j);
-            glBegin(GL_QUADS);
-            glVertex3f(0,0,0);
-            glVertex3f(5,0,0);
-            glVertex3f(5,0,5.0);
-            glVertex3f(0,0,5.0);;
-            glEnd();
-            glPopMatrix();
-        }
-    }
-    //end draw floor
-    
-    drawBodyAssembly(xUp,yUp,zUp);
-    
-    
+	glFrontFace(GL_CW);
+
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
+	glDisable(GL_DEPTH_TEST);
+	glColorMask(GL_FALSE,GL_FALSE,GL_FALSE,GL_FALSE);
+	glEnable(GL_STENCIL_TEST);
+	glStencilFunc(GL_GREATER,1,3);
+	glStencilOp(GL_KEEP,GL_KEEP,GL_REPLACE);
+	drawFloor();
+
+	glCullFace(GL_FRONT);
+	glStencilFunc(GL_GREATER,2,3);
+	drawFloor();
+	glEnable(GL_DEPTH_TEST);
+	glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE);
+	glStencilOp(GL_KEEP,GL_KEEP,GL_KEEP);
+	drawBodyAssembly(xUp,yUp,zUp);
+	glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE);
+	glDisable(GL_CULL_FACE);
+	glStencilFunc(GL_EQUAL,1,3);
+	glStencilOp(GL_KEEP,GL_KEEP,GL_KEEP);
+	
+	drawBodyReflection(xUp, yUp, zUp);
+
+	glDisable(GL_STENCIL_TEST);
+	glEnable(GL_BLEND);
+	glDisable(GL_DEPTH_TEST);
+	glBlendFunc(GL_ONE_MINUS_DST_ALPHA, GL_DST_ALPHA);
+	drawFloor();
+	glDisable(GL_BLEND);
+	glEnable(GL_DEPTH_TEST);
+
 	glutSwapBuffers();
 }
 
@@ -470,6 +437,94 @@ void menu(int sel)
 	glutPostRedisplay();
 }
 
+void drawFloor()
+{
+
+   	GLfloat white[] = {1,1,1,1};
+	GLfloat black[] = {0,0,0,1};
+    //draw floor
+    for (float i = -200; i<200; i=i+10)
+    {
+        for (float j = -200; j<200; j+=10)
+        {
+            glColor4fv(white);
+		glMaterialfv(GL_FRONT_AND_BACK,GL_DIFFUSE,white);
+		glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT,white);
+            glNormal3f(0, 1, 0);
+            glPushMatrix();
+            glTranslatef(i,0,j);
+            glBegin(GL_QUADS);
+            glVertex3f(0,0,0);
+            glVertex3f(5,0,0);
+            glVertex3f(5,0,5.0);
+            glVertex3f(0,0,5.0);;
+            glEnd();
+            glPopMatrix();
+        }
+    }
+    
+    for (float i = -195; i<200; i=i+10)
+    {
+        for (float j = -195; j<200; j+=10)
+        {
+            glColor4fv(white);
+		glMaterialfv(GL_FRONT_AND_BACK,GL_DIFFUSE,white);
+		glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT,white);
+            glNormal3f(0, 1, 0);
+            glPushMatrix();
+            glTranslatef(i,0,j);
+            glBegin(GL_QUADS);
+            glVertex3f(0,0,0);
+            glVertex3f(5,0,0);
+            glVertex3f(5,0,5.0);
+            glVertex3f(0,0,5.0);;
+            glEnd();
+            glPopMatrix();
+        }
+    }
+    
+    for (float i = -200; i<200; i=i+10)
+    {
+        for (float j = -205 ; j<200; j+=10)
+        {
+            glColor4fv(black);
+		glMaterialfv(GL_FRONT_AND_BACK,GL_DIFFUSE,black);
+		glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT,black);
+            glNormal3f(0, 1, 0);
+            glPushMatrix();
+            glTranslatef(i,0,j);
+            glBegin(GL_QUADS);
+            glVertex3f(0,0,0);
+            glVertex3f(5,0,0);
+            glVertex3f(5,0,5.0);
+            glVertex3f(0,0,5.0);;
+            glEnd();
+            glPopMatrix();
+        }
+    }
+    
+    for (float i = -195; i<200; i=i+10)
+    {
+        for (float j = -200; j<200; j+=10)
+        {
+            glColor4fv(black);
+		glMaterialfv(GL_FRONT_AND_BACK,GL_DIFFUSE,black);
+		glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT,black);
+            glNormal3f(0, 1, 0);
+            glPushMatrix();
+            glTranslatef(i,0,j);
+            glBegin(GL_QUADS);
+            glVertex3f(0,0,0);
+            glVertex3f(5,0,0);
+            glVertex3f(5,0,5.0);
+            glVertex3f(0,0,5.0);;
+            glEnd();
+            glPopMatrix();
+        }
+    }
+    //end draw floor
+}
+
 void drawHeadAssembly(GLfloat xUp, GLfloat yUp, GLfloat zUp)
 {
     glPushMatrix();
@@ -597,5 +652,18 @@ void drawBodyAssembly(GLfloat xUp, GLfloat yUp, GLfloat zUp)
     drawTorsoAssembly(xUp, yUp-2.4,zUp);
     
     glPopMatrix();
+}
+
+void drawBodyReflection(GLfloat xUp, GLfloat yUp, GLfloat zUp)
+{
+	glPushMatrix();
+	glScalef(1,-1,1);
+	drawBodyAssembly(xUp, yUp, zUp);
+	glPopMatrix();
+}
+
+void drawRollerCoaster(GLfloat controlPoints[])
+{
+
 }
 
