@@ -24,6 +24,7 @@ enum MENU_ITEMS
 {
 	M_AMBIENT = 0,
 	M_POINT,
+	M_FOG,
 	M_QUIT
 };
 
@@ -67,6 +68,7 @@ double centerZ = 0;
 bool ambient = false;
 bool point = false;
 bool spot = true;
+bool enableFog = false;
 
 // window
 int width = 400;
@@ -92,6 +94,7 @@ main(int argc, char **argv)
 	glutCreateMenu(menu);
 	glutAddMenuEntry("Toggle ambient lighting",M_AMBIENT);
 	glutAddMenuEntry("Toggle point light",M_POINT);
+	glutAddMenuEntry("Toggle fog",M_FOG);
 	glutAddMenuEntry("Quit",M_QUIT);
 
 	glutAttachMenu(GLUT_RIGHT_BUTTON);
@@ -110,6 +113,7 @@ void init()
 	glEnable(GL_LIGHT1);
 	glEnable(GL_LIGHTING);
 	glEnable(GL_COLOR_MATERIAL);
+	glEnable(GL_FOG);
 	// initialize viewing system
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
@@ -169,6 +173,13 @@ void display()
    	GLfloat white[] = {1,1,1,0};					// light color
 	GLfloat black[] = {0,0,0,0};
 	GLfloat gray[] = {0.2,0.2,0.2,0};
+	GLfloat fog_color[] = {0.5,0.5,0.5,1.0};
+	glFogfv(GL_FOG_COLOR, fog_color);
+	if (enableFog) {
+		glFogf(GL_FOG_DENSITY,0.05);
+	} else {
+		glFogf(GL_FOG_DENSITY,0.0);
+	}
 	if (ambient) {
 		glLightfv(GL_LIGHT0, GL_AMBIENT, gray);
 	} else {
@@ -447,6 +458,10 @@ void menu(int sel)
 		case M_POINT:
 			point = !point;
 			cerr << "Point light " << (point?"On":"Off") << endl;
+			break;
+		case M_FOG:
+			enableFog = !enableFog;
+			cerr << "Fog " << (enableFog?"On":"Off") << endl;
 			break;
 		case M_QUIT:
 			exit(0);
